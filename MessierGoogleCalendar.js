@@ -1,11 +1,12 @@
 // ==UserScript==
 // @name         Messier Google Calendar Standalone
 // @namespace    http://senakiho.tk/
-// @version      2.0
+// @version      2.0.1
 // @description  Add shown teaching schedules into Google Calendar. Standalone version without using web server.
 // @author       IZ14-0
 // @downloadURL  http://frizz925.github.io/js/MessierGoogleCalendar.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js
+// @require      https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.12.0/lodash.min.js
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js
 // @require      https://apis.google.com/js/client.js
 // @require      http://frizz925.github.io/js/GoogleCalendarWebUIFramework.min.js
@@ -18,6 +19,10 @@
 var columnMapping = [
     'Type', 'Description',
     'Start', 'End', 'Status'
+];
+
+var acceptedTypes = [
+    "Teaching", "Marking", "Exam Proctor"
 ];
 
 GoogleCalendarWebUIFramework({
@@ -55,7 +60,7 @@ GoogleCalendarWebUIFramework({
                 }
             };
             
-            if (data['Type'] == 'Teaching') {
+            if (_.some(acceptedTypes, function(type) { return type == data['Type'] })) {
                 json['location'] = "Binus Anggrek " + parts[parts.length-2];
                 json['description'] += "\nSession: " + parts[parts.length-1];
             }
