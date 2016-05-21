@@ -20,7 +20,7 @@ function GoogleCalendarWebUIFramework(params) {
 
     var SCOPES = "https://www.googleapis.com/auth/calendar";
     var POLL_INTERVAL = 500;
-    var CONCURRENY_MAX = 4;
+    var CONCURRENCY_MAX = 4;
 
     var self = params || {};
     var handlers = {};
@@ -152,7 +152,7 @@ function GoogleCalendarWebUIFramework(params) {
     }
 
     function insertEvent(json) {
-        if (globals.concurrentRequest >= CONCURRENY_MAX) {
+        if (globals.concurrentRequest >= CONCURRENCY_MAX) {
             setTimeout(function() {
                 insertEvent(json);
             }, POLL_INTERVAL);
@@ -160,6 +160,7 @@ function GoogleCalendarWebUIFramework(params) {
         }
 
         globals.concurrentRequest++;
+        // first check if events are conflicting
         gapi.client.calendar.events.list({
             calendarId: globals.calendarId,
             timeMin:  json.start.dateTime,

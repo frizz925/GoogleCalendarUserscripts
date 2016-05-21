@@ -16,6 +16,10 @@
 // ==/UserScript==
 "use strict";
 
+/**
+ * TODO: Implement marking schedules
+ */
+
 var columnMapping = [
     'Type', 'Description',
     'Start', 'End', 'Status'
