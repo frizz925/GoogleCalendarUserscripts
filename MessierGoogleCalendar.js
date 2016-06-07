@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         Messier Google Calendar Standalone
 // @namespace    http://senakiho.tk/
-// @version      2.0.1
+// @version      2.0.2
 // @description  Add shown teaching schedules into Google Calendar. Standalone version without using web server.
 // @author       IZ14-0
-// @downloadURL  http://frizz925.github.io/js/MessierGoogleCalendar.js
+// @downloadURL  https://github.com/Frizz925/GoogleCalendarUserscripts/raw/master/MessierGoogleCalendar.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.12.0/lodash.min.js
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js
@@ -25,9 +25,22 @@ var columnMapping = [
     'Start', 'End', 'Status'
 ];
 
-var acceptedTypes = [
-    "Teaching", "Marking", "Exam Proctor"
-];
+var parsers = {};
+parsers.default = function(parts) {
+    return {
+        course: parts.slice(0, parts.length-3).join(" "),
+        session: parts[parts.length-1],
+        room: parts[parts.length-2],
+        class: parts[parts.length-3]
+    };
+};
+parsers["Exam Proctor"] = function(parts) {
+    return {
+        course: parts.slice(0, parts.length-2).join(" "),
+        room: parts[parts.length-1],
+        class: parts[parts.length-2]
+    };
+};
 
 GoogleCalendarWebUIFramework({
     credentialsUrl: "http://frizz925.github.io/js/GoogleCalendarAppCredentials.json",
@@ -41,34 +54,25 @@ GoogleCalendarWebUIFramework({
                 data[name] = $(cols[idx]).text().trim();
             });
            
-            var parts = data['Description'].split(' ');
-            
-            var course = [];
-            for (var i = 0; i < parts.length-4; i++) {
-                course.push(parts[i]);
-            }
-            course = course.join(' ');
-            
-            var summary = "[" + data['Type'] + "] " + course;
-            var description = "Class: " + parts[parts.length-4];
-            var start = moment(data['Start'], "DD-MMM-YYYY hh:mm A").toISOString();
-            var end = moment(data['End'], "DD-MMM-YYYY hh:mm A").toISOString();
-            
+            var parts = data.Description.replace(/\s+/g, " ").split(" ");
+            var parser = parsers[data.Type] || parsers.default;
+            var parsed = parser(parts);
+
             var json = {
-                'summary'   : summary,
-                'start'     : { 'dateTime' : start },
-                'end'       : { 'dateTime' : end },
-                'description'   : description,
-                'reminders' : {
-                    'useDefault'    : true
-                }
+                summary: "[" + data.Type + "] " + parsed.course,
+                start: { 
+                    dateTime: moment(data['Start'], "DD-MMM-YYYY hh:mm A").toISOString(),
+                },
+                end: { 
+                    dateTime: moment(data['End'], "DD-MMM-YYYY hh:mm A").toISOString(),
+                },
+                description: "Class: " + parsed.class + (parsed.session ? "\nSession: " + parsed.session : ""),
+                reminders: {
+                    useDefault: true
+                },
+                location: "Binus Anggrek " + parsed.room
             };
             
-            if (_.some(acceptedTypes, function(type) { return type == data['Type'] })) {
-                json['location'] = "Binus Anggrek " + parts[parts.length-2];
-                json['description'] += "\nSession: " + parts[parts.length-1];
-            }
-
             events.push(json);
         });
 

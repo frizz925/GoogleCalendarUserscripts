@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         Application-Level Binusmaya Google Calendar Standalone
 // @namespace    http://senakiho.tk/
-// @version      2.0
+// @version      2.0.1
 // @description  Add shown class schedules into Google Calendar. Standalone version without using web server.
 // @author       IZ14-0
-// @downloadURL  http://frizz925.github.io/js/BinusmayaGoogleCalendar.js
+// @downloadURL  https://github.com/Frizz925/GoogleCalendarUserscripts/raw/master/BinusmayaGoogleCalendar.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js
 // @require      https://apis.google.com/js/client.js
